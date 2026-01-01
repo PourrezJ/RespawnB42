@@ -1,0 +1,6 @@
+version=1
+id=3636615198
+title=Respawned
+description=Based on the work from StarkSilence Respawn.
+tags=Build 42;Multiplayer
+visibility=unlisted

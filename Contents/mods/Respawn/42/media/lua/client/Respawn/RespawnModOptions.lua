@@ -6,7 +6,7 @@ if not PZAPI or not PZAPI.ModOptions then
     return
 end
 
-print("[Respawn] Creating ModOptions UI...")
+Respawn.DebugLog("Creating ModOptions UI...")
 
 local modOptions = PZAPI.ModOptions:create("respawn_options", "Respawn Mod")
 
@@ -18,7 +18,6 @@ if isClient() then
     modOptions:addDescription("The server administrator can edit options in:")
     modOptions:addDescription("Zomboid/Lua/respawn-options.json")
     
-    print("[Respawn] Multiplayer mode - options UI shows info only")
     return -- Don't create the actual option controls
 end
 
@@ -56,11 +55,21 @@ modOptions:addTickBox(
     "If enabled, Strength XP will be restored at 100% regardless of the XP Restored setting."
 )
 
+modOptions:addSeparator()
+modOptions:addTitle("Debug")
+
+-- Enable Debug tickbox
+modOptions:addTickBox(
+    "EnableDebug",
+    "Enable Debug Logging",
+    false,
+    "Show detailed debug messages in console.txt for troubleshooting."
+)
+
 -- Apply function - only updates in solo mode
 modOptions.apply = function(self)
     -- In multiplayer, options come from server, don't override
     if isClient() then
-        print("[Respawn] Client in multiplayer - options controlled by server")
         return
     end
     
@@ -68,11 +77,13 @@ modOptions.apply = function(self)
     Respawn.Data.Options.XPRestored = self:getOption("XPRestored"):getValue()
     Respawn.Data.Options.ExcludeFitness = self:getOption("ExcludeFitness"):getValue()
     Respawn.Data.Options.ExcludeStrength = self:getOption("ExcludeStrength"):getValue()
+    Respawn.Data.Options.EnableDebug = self:getOption("EnableDebug"):getValue()
     
-    print("[Respawn] Solo options updated:")
-    print("  XPRestored: " .. tostring(Respawn.Data.Options.XPRestored))
-    print("  ExcludeFitness: " .. tostring(Respawn.Data.Options.ExcludeFitness))
-    print("  ExcludeStrength: " .. tostring(Respawn.Data.Options.ExcludeStrength))
+    Respawn.Log("Solo options updated:")
+    Respawn.Log("  XPRestored: " .. tostring(Respawn.Data.Options.XPRestored))
+    Respawn.Log("  ExcludeFitness: " .. tostring(Respawn.Data.Options.ExcludeFitness))
+    Respawn.Log("  ExcludeStrength: " .. tostring(Respawn.Data.Options.ExcludeStrength))
+    Respawn.Log("  EnableDebug: " .. tostring(Respawn.Data.Options.EnableDebug))
 end
 
 -- Initialize options immediately
@@ -82,5 +93,3 @@ modOptions:apply()
 Events.OnMainMenuEnter.Add(function()
     modOptions:apply()
 end)
-
-print("[Respawn] ModOptions UI created successfully")

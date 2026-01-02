@@ -3,30 +3,22 @@ RecoverableTraits = {};
 function RecoverableTraits:Save(player)
     Respawn.Data.Stats.Traits = {};
     
-    print("[Respawn] RecoverableTraits:Save - Getting traits...");
+    Respawn.DebugLog("RecoverableTraits:Save - Getting traits...");
     local characterTraits = player:getCharacterTraits();
-    print("[Respawn] CharacterTraits object: " .. tostring(characterTraits));
-    
-    -- Get the list of known traits using getKnownTraits()
     local traitsList = characterTraits:getKnownTraits();
-    print("[Respawn] KnownTraits list: " .. tostring(traitsList));
     
     if not traitsList then
-        print("[Respawn] ERROR: getKnownTraits() returned nil");
+        Respawn.Log("ERROR: getKnownTraits() returned nil");
         return;
     end
     
-    local size = traitsList:size();
-    print("[Respawn] Traits count: " .. tostring(size));
-    
-    -- Get the player's profession traits to filter them out
+    -- Get profession-granted traits to filter them out
     local descriptor = player:getDescriptor();
     local profession = descriptor and descriptor:getCharacterProfession();
     local professionDef = nil;
     local grantedTraits = {};
     
     if profession then
-        -- Find the profession definition
         local allProfs = CharacterProfessionDefinition.getProfessions();
         for i = 0, allProfs:size() - 1 do
             local profDef = allProfs:get(i);
@@ -39,11 +31,9 @@ function RecoverableTraits:Save(player)
         if professionDef then
             local grantedList = professionDef:getGrantedTraits();
             if grantedList then
-                print("[Respawn] Profession grants " .. grantedList:size() .. " traits");
                 for i = 0, grantedList:size() - 1 do
                     local grantedTrait = grantedList:get(i);
                     grantedTraits[tostring(grantedTrait)] = true;
-                    print("[Respawn] Profession grants trait: " .. tostring(grantedTrait));
                 end
             end
         end
@@ -57,54 +47,13 @@ function RecoverableTraits:Save(player)
             print("[Respawn] Trait toString: " .. tostring(traitStr));
             
             -- Skip profession-granted traits
-            local isProfTrait = grantedTraits[traitStr] == true;
-            print("[Respawn] Is profession-granted trait: " .. tostring(isProfTrait));
-            
-            if not isProfTrait and traitStr then
-                table.insert(Respawn.Data.Stats.Traits, traitStr);
-                print("[Respawn] Added to save list: " .. traitStr);
-            else
-                print("[Respawn] Skipping profession-granted trait: " .. tostring(trait));
-            end
-        end
-    end
     
-    print("[Respawn] Saved " .. #Respawn.Data.Stats.Traits .. " traits");
+    Respawn.DebugLog("Saved " .. #Respawn.Data.Stats.Traits .. " traits (excluding profession traits)");
 end
 
+-- Note: Traits are applied directly in RespawnLoad.lua via ApplyTraitsAndProfession()
+-- This Load method is not used but kept for compatibility with the Recoverables structure
 function RecoverableTraits:Load(player)
-    if not Respawn.Data.Stats.Traits then
-        print("[Respawn] RecoverableTraits:Load - No saved traits data");
-        return;
-    end
-    
-    print("[Respawn] RecoverableTraits:Load - Restoring " .. #Respawn.Data.Stats.Traits .. " traits");
-    
-    local playerTraits = player:getCharacterTraits();
-    
-    -- Build 42: Remove existing traits manually (no clear() method)
-    local knownTraits = playerTraits:getKnownTraits();
-    if knownTraits then
-        local traitsToRemove = {};
-        for i = 0, knownTraits:size() - 1 do
-            table.insert(traitsToRemove, knownTraits:get(i));
-        end
-        for _, trait in ipairs(traitsToRemove) do
-            playerTraits:remove(trait);
-        end
-    end
-
-    for i, traitId in ipairs(Respawn.Data.Stats.Traits) do
-        print("[Respawn] Restoring trait #" .. i .. ": " .. tostring(traitId));
-        -- Build 42: Get the CharacterTrait object from the ID and add it
-        local trait = CharacterTrait.get(ResourceLocation.of(traitId));
-        if trait then
-            playerTraits:add(trait);
-            print("[Respawn] Successfully added trait: " .. tostring(trait));
-        else
-            print("[Respawn] ERROR: Failed to get trait for ID: " .. tostring(traitId));
-        end
-    end
-    
-    print("[Respawn] RecoverableTraits:Load - Restoration complete");
+    -- Traits are applied via server commands in multiplayer or directly in ApplyTraitsAndProfession() in solo
+    -- This method is intentionally left empty
 end

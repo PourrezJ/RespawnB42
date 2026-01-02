@@ -2,23 +2,21 @@
 -- This ensures they are available on both server and client
 
 local function InitRespawnProfession()
-    print("[Respawn] Registering profession and trait...");
+    Respawn.Log("Registering profession and trait...");
     
     -- Register the trait first
     local trait = CharacterTrait.register(Respawn.FullId);
     if not trait then
-        print("[Respawn] ERROR: Could not register trait");
+        Respawn.Log("ERROR: Could not register trait");
         return;
     end
-    print("[Respawn] Trait registered: " .. tostring(trait));
     
     -- Register the profession enum
     local prof = CharacterProfession.register(Respawn.FullId);
     if not prof then
-        print("[Respawn] ERROR: Could not register profession enum");
+        Respawn.Log("ERROR: Could not register profession enum");
         return;
     end
-    print("[Respawn] Profession enum registered: " .. tostring(prof));
     
     -- Create profession definition
     local profDef = CharacterProfessionDefinition.addCharacterProfessionDefinition(
@@ -31,9 +29,9 @@ local function InitRespawnProfession()
     
     if profDef and trait then
         profDef:getGrantedTraits():add(trait);
-        print("[Respawn] Profession registered successfully with granted trait");
+        Respawn.Log("Profession registered successfully");
     else
-        print("[Respawn] ERROR: Could not create profession definition");
+        Respawn.Log("ERROR: Could not create profession definition");
     end
 end
 

@@ -57,18 +57,11 @@ local function LoadOptions()
             ExcludeStrength = true,
         };
         
-        -- Save default options to file for future editing
         Respawn.File.Save(Respawn.OptionsPath, options);
-        print("[Respawn Server] Created default options file: " .. Respawn.OptionsPath);
-    else
-        print("[Respawn Server] Loaded options from file: " .. Respawn.OptionsPath);
+        print("[Respawn Server] Created default options file");
     end
     
-    print("[Respawn Server] Server options:");
-    print("  XPRestored: " .. tostring(options.XPRestored));
-    print("  ExcludeFitness: " .. tostring(options.ExcludeFitness));
-    print("  ExcludeStrength: " .. tostring(options.ExcludeStrength));
-
+    print("[Respawn Server] Options loaded (XP: " .. options.XPRestored .. ")");
     return options;
 end
 

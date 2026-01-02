@@ -1,21 +1,18 @@
--- Server-side trait application
--- The server is authoritative for traits in multiplayer
+-- Server-side command handler for multiplayer synchronization
+-- The server is authoritative for traits, XP, and boosts in multiplayer
 
 local function OnClientCommand(module, command, player, args)
     if module ~= 'respawn' then
         return;
     end
     
-    print("[Respawn Server] Received command: " .. tostring(command) .. " from player " .. tostring(player:getUsername()));
+    print("[Respawn Server] Command: " .. tostring(command) .. " from " .. tostring(player:getUsername()));
     
     if command == 'applyTraits' then
         if not args or not args.traits then
             print("[Respawn Server] ERROR: No traits provided");
             return;
         end
-        
-        print("[Respawn Server] Applying " .. #args.traits .. " traits to player");
-        print("[Respawn Server] Traits: " .. table.concat(args.traits, ", "));
         
         local playerTraits = player:getCharacterTraits();
         local addedCount = 0;
@@ -25,10 +22,7 @@ local function OnClientCommand(module, command, player, args)
                 local trait = CharacterTrait.get(ResourceLocation.of(traitId));
                 if trait then
                     playerTraits:add(trait);
-                    print("[Respawn Server] Added trait: " .. tostring(trait));
                     addedCount = addedCount + 1;
-                else
-                    print("[Respawn Server] ERROR: Could not find trait: " .. traitId);
                 end
             end);
             if not success then
@@ -36,9 +30,7 @@ local function OnClientCommand(module, command, player, args)
             end
         end
         
-        print("[Respawn Server] Successfully added " .. addedCount .. " traits");
-        
-        -- Notify client that traits were applied
+        print("[Respawn Server] Applied " .. addedCount .. " traits");
         sendServerCommand(player, 'respawn', 'traitsApplied', { count = addedCount });
         
     elseif command == 'applyXP' then
@@ -47,7 +39,6 @@ local function OnClientCommand(module, command, player, args)
             return;
         end
         
-        print("[Respawn Server] Applying XP to player");
         local xp = player:getXp();
         local count = 0;
         
@@ -56,12 +47,7 @@ local function OnClientCommand(module, command, player, args)
                 local perk = PerkFactory.getPerkFromName(perkName);
                 if perk then
                     xp:AddXP(perk, experience, false, false, false);
-                    if count < 5 then
-                        print("[Respawn Server] Restored XP for " .. perkName .. ": " .. experience);
-                    end
                     count = count + 1;
-                else
-                    print("[Respawn Server] ERROR: Could not find perk: " .. perkName);
                 end
             end);
             if not success then
@@ -69,7 +55,7 @@ local function OnClientCommand(module, command, player, args)
             end
         end
         
-        print("[Respawn Server] Successfully applied XP for " .. count .. " perks");
+        print("[Respawn Server] Applied XP for " .. count .. " perks");
         sendServerCommand(player, 'respawn', 'xpApplied', { count = count });
         
     elseif command == 'applyBoosts' then
@@ -78,7 +64,6 @@ local function OnClientCommand(module, command, player, args)
             return;
         end
         
-        print("[Respawn Server] Applying XP boosts to player");
         local xp = player:getXp();
         local count = 0;
         
@@ -88,10 +73,7 @@ local function OnClientCommand(module, command, player, args)
                 if perk then
                     xp:AddXP(perk, 0, true, false, false);
                     xp:setPerkBoost(perk, boost);
-                    print("[Respawn Server] Restored boost for " .. perkName .. ": " .. boost);
                     count = count + 1;
-                else
-                    print("[Respawn Server] ERROR: Could not find perk: " .. perkName);
                 end
             end);
             if not success then
@@ -99,7 +81,7 @@ local function OnClientCommand(module, command, player, args)
             end
         end
         
-        print("[Respawn Server] Successfully applied " .. count .. " boosts");
+        print("[Respawn Server] Applied " .. count .. " boosts");
         sendServerCommand(player, 'respawn', 'boostsApplied', { count = count });
     end
 end

@@ -9,6 +9,19 @@ Respawn.Data.Options = {
     XPRestored = 21, -- Default: "Last Level" (index 21)
     ExcludeFitness = true,
     ExcludeStrength = true,
+    EnableDebug = false, -- Show debug messages in console
 }
 
-print("[Respawn] Default options initialized")
+-- Debug logging function
+function Respawn.DebugLog(message)
+    if Respawn.Data.Options and Respawn.Data.Options.EnableDebug then
+        print("[Respawn] " .. message)
+    end
+end
+
+-- Always log important messages
+function Respawn.Log(message)
+    print("[Respawn] " .. message)
+end
+
+Respawn.Log("Default options initialized")

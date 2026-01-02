@@ -2,7 +2,7 @@ function CharacterCreationProfession:resetBuild()
     local index = self:getUnemployedProfessionIndex();
 
     if index > #self.listboxProf.items then
-        print("[Respawn] ERROR: Unemployed profession not found!");
+        Respawn.Log("ERROR: Unemployed profession not found!");
         return;
     end
 
@@ -19,7 +19,7 @@ function CharacterCreationProfession:resetTraits()
     local index = self:getUnemployedProfessionIndex();
     
     if index > #self.listboxProf.items then
-        print("[Respawn] ERROR: Unemployed profession not found!");
+        Respawn.Log("ERROR: Unemployed profession not found!");
         return;
     end
 

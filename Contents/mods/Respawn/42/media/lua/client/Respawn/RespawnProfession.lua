@@ -31,11 +31,11 @@ function CharacterCreationProfession:setVisible(visible, joypadData)
 end
 
 function CharacterCreationProfession:addRespawnProfession()
-    -- Find the profession created by the server by searching through all professions
+    -- Find the profession created by the server
     local allProfs = CharacterProfessionDefinition.getProfessions();
     local respawnProf = nil;
     
-    print("[Respawn] Searching for profession, total count: " .. tostring(allProfs:size()));
+    Respawn.DebugLog("Searching for profession in " .. tostring(allProfs:size()) .. " professions");
     
     for i = 0, allProfs:size() - 1 do
         local profDef = allProfs:get(i);

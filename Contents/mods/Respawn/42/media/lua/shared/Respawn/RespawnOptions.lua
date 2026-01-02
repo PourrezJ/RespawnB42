@@ -1,51 +1,69 @@
-Respawn.DefaultOptions = {
-    XPRestored = 21,
-    ExcludeFitness = true,
-    ExcludeStrength = true,
-}
-
 -- Ensure Respawn.Data exists before assigning to it
 if not Respawn.Data then
     Respawn.Data = {};
 end
 
-Respawn.Data.Options = Respawn.DefaultOptions;
+-- Default options
+Respawn.Data.Options = {
+    XPRestored = 21, -- Default: "Last Level" (index 21)
+    ExcludeFitness = true,
+    ExcludeStrength = true,
+}
 
-if ModOptions and ModOptions.getInstance then
-    local options = ModOptions:getInstance(Respawn.DefaultOptions, Respawn.Id, Respawn.Name);
-
-    options.names = {
-        XPRestored = "XP Restored",
-        ExcludeFitness = "Exclude Fitness",
-        ExcludeStrength = "Exclude Strength",
-    }
-
-    local xpRestoredDropdown = options:getData("XPRestored");
-    xpRestoredDropdown[1] = "5%";
-    xpRestoredDropdown[2] = "10%";
-    xpRestoredDropdown[3] = "15%";
-    xpRestoredDropdown[4] = "20%";
-    xpRestoredDropdown[5] = "25%";
-    xpRestoredDropdown[6] = "30%";
-    xpRestoredDropdown[7] = "35%";
-    xpRestoredDropdown[8] = "40%";
-    xpRestoredDropdown[9] = "45%";
-    xpRestoredDropdown[10] = "50%";
-    xpRestoredDropdown[11] = "55%";
-    xpRestoredDropdown[12] = "60%";
-    xpRestoredDropdown[13] = "65%";
-    xpRestoredDropdown[14] = "70%";
-    xpRestoredDropdown[15] = "75%";
-    xpRestoredDropdown[16] = "80%";
-    xpRestoredDropdown[17] = "85%";
-    xpRestoredDropdown[18] = "90%";
-    xpRestoredDropdown[19] = "95%";
-    xpRestoredDropdown[20] = "100%";
-    xpRestoredDropdown[21] = "Last Level";
-
-    local excludeFitness = options:getData("ExcludeFitness");
-    excludeFitness.tooltip = "If enabled 100% of experience will be saved.";
+-- Build 42 ModOptions using PZAPI
+if PZAPI and PZAPI.ModOptions then
+    -- Create mod options section
+    local modOptions = PZAPI.ModOptions:create("respawn_options", "Respawn Mod")
     
-    local excludeStrength = options:getData("ExcludeStrength");
-    excludeStrength.tooltip = "If enabled 100% of experience will be saved.";
+    -- Add title
+    modOptions:addTitle("Experience Restoration")
+    
+    -- XP Restored combobox
+    local XP_RESTORE_OPTIONS = {
+        "5%", "10%", "15%", "20%", "25%",
+        "30%", "35%", "40%", "45%", "50%",
+        "55%", "60%", "65%", "70%", "75%",
+        "80%", "85%", "90%", "95%", "100%",
+        "Last Level"
+    }
+    
+    local xpRestoredCombo = modOptions:addComboBox("XPRestored", "XP Restored")
+    for i, option in ipairs(XP_RESTORE_OPTIONS) do
+        xpRestoredCombo:addItem(option, i == 21) -- Default: "Last Level" (index 21)
+    end
+    
+    modOptions:addSeparator()
+    
+    -- Exclude Fitness tickbox
+    modOptions:addTickBox(
+        "ExcludeFitness",
+        "Exclude Fitness",
+        true,
+        "If enabled, Fitness XP will be restored at 100% regardless of the XP Restored setting."
+    )
+    
+    -- Exclude Strength tickbox
+    modOptions:addTickBox(
+        "ExcludeStrength",
+        "Exclude Strength",
+        true,
+        "If enabled, Strength XP will be restored at 100% regardless of the XP Restored setting."
+    )
+    
+    -- Apply function to update Respawn.Data.Options when settings change
+    modOptions.apply = function(self)
+        Respawn.Data.Options.XPRestored = self:getOption("XPRestored"):getValue()
+        Respawn.Data.Options.ExcludeFitness = self:getOption("ExcludeFitness"):getValue()
+        Respawn.Data.Options.ExcludeStrength = self:getOption("ExcludeStrength"):getValue()
+        
+        print("[Respawn] Options updated:")
+        print("  XPRestored: " .. tostring(Respawn.Data.Options.XPRestored))
+        print("  ExcludeFitness: " .. tostring(Respawn.Data.Options.ExcludeFitness))
+        print("  ExcludeStrength: " .. tostring(Respawn.Data.Options.ExcludeStrength))
+    end
+    
+    -- Initialize options on main menu
+    Events.OnMainMenuEnter.Add(function()
+        modOptions:apply()
+    end)
 end

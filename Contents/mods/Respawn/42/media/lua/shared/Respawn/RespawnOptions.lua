@@ -4,6 +4,11 @@ Respawn.DefaultOptions = {
     ExcludeStrength = true,
 }
 
+-- Ensure Respawn.Data exists before assigning to it
+if not Respawn.Data then
+    Respawn.Data = {};
+end
+
 Respawn.Data.Options = Respawn.DefaultOptions;
 
 if ModOptions and ModOptions.getInstance then

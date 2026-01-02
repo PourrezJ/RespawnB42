@@ -1,46 +1,8 @@
 local Original_Create = CharacterCreationProfession.create;
 local Original_SetVisible = CharacterCreationProfession.setVisible;
-local Profession;
 
-local function CreateRespawnProfession()
-    -- Build 42: Create profession dynamically without script files
-    -- Since we can't use script files (profession would always be visible),
-    -- we create a minimal profession object that we'll manually add to the list
-    
-    -- First get or create the CharacterProfession enum value
-    local prof = CharacterProfession.register(Respawn.FullId);
-    if not prof then
-        print("[Respawn] ERROR: Could not register CharacterProfession enum");
-        return nil;
-    end
-    
-    -- Now create a profession definition
-    local profDef = CharacterProfessionDefinition.addCharacterProfessionDefinition(
-        prof,
-        "Respawn",
-        0,
-        "Respawn character",
-        "profession_unemployed"
-    );
-    
-    if not profDef then
-        print("[Respawn] ERROR: Could not create profession definition");
-        return nil;
-    end
-    
-    -- Add the respawn trait to this profession
-    -- IMPORTANT: Use the CharacterTrait object, not the string ID
-    if Respawn.Trait then
-        print("[Respawn] Adding trait to profession: " .. tostring(Respawn.Trait));
-        profDef:getGrantedTraits():add(Respawn.Trait);
-        print("[Respawn] Granted traits count: " .. profDef:getGrantedTraits():size());
-    else
-        print("[Respawn] WARNING: Respawn.Trait is nil, trait not added to profession!");
-    end
-    
-    print("[Respawn] Successfully created profession: " .. tostring(Respawn.FullId));
-    return profDef;
-end
+-- The profession is created by the server in RespawnHost.lua
+-- We just need to reference it here without creating a new one
 
 local function GetRespawnAvailable()
     local available = Respawn.File.Load(Respawn.AvailablePath);
@@ -64,24 +26,39 @@ function CharacterCreationProfession:setVisible(visible, joypadData)
 
     if GetRespawnAvailable() then
         writeLog(Respawn.GetLogName(), "respawn available!");
-        
-        -- Create the profession only when respawn is available (player is dead)
-        if not Profession then
-            Profession = CreateRespawnProfession();
-        end
-        
         self:addRespawnProfession();
     end
 end
 
 function CharacterCreationProfession:addRespawnProfession()
-    if not Profession then
-        print("[Respawn] ERROR: Respawn profession is nil! Cannot add to profession list.");
+    -- Find the profession created by the server by searching through all professions
+    local allProfs = CharacterProfessionDefinition.getProfessions();
+    local respawnProf = nil;
+    
+    print("[Respawn] Searching for profession, total count: " .. tostring(allProfs:size()));
+    
+    for i = 0, allProfs:size() - 1 do
+        local profDef = allProfs:get(i);
+        local uiName = profDef:getUIName();
+        local profType = profDef:getType();
+        print("[Respawn] Profession #" .. tostring(i) .. " UIName: " .. tostring(uiName) .. ", Type: " .. tostring(profType));
+        
+        -- Match by profession type using toString() to check for "respawn:respawn"
+        if profType and tostring(profType):lower():find("respawn") then
+            respawnProf = profDef;
+            print("[Respawn] Found profession definition: " .. tostring(profDef));
+            break;
+        end
+    end
+    
+    if not respawnProf then
+        print("[Respawn] ERROR: Could not find Respawn profession definition");
         return;
     end
     
-    self.listboxProf:insertItem(0, Respawn.Id, Profession);
-    self:onSelectProf(Profession);
+    print("[Respawn] Adding profession to list");
+    self.listboxProf:insertItem(0, Respawn.Id, respawnProf);
+    self:onSelectProf(respawnProf);
 end
 
 function CharacterCreationProfession:removeRespawnProfession()

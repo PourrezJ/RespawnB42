@@ -19,14 +19,52 @@ function RecoverableTraits:Save(player)
     local size = traitsList:size();
     print("[Respawn] Traits count: " .. tostring(size));
     
+    -- Get the player's profession traits to filter them out
+    local descriptor = player:getDescriptor();
+    local profession = descriptor and descriptor:getCharacterProfession();
+    local professionDef = nil;
+    local grantedTraits = {};
+    
+    if profession then
+        -- Find the profession definition
+        local allProfs = CharacterProfessionDefinition.getProfessions();
+        for i = 0, allProfs:size() - 1 do
+            local profDef = allProfs:get(i);
+            if profDef and profDef:getType() and tostring(profDef:getType()) == tostring(profession) then
+                professionDef = profDef;
+                break;
+            end
+        end
+        
+        if professionDef then
+            local grantedList = professionDef:getGrantedTraits();
+            if grantedList then
+                print("[Respawn] Profession grants " .. grantedList:size() .. " traits");
+                for i = 0, grantedList:size() - 1 do
+                    local grantedTrait = grantedList:get(i);
+                    grantedTraits[tostring(grantedTrait)] = true;
+                    print("[Respawn] Profession grants trait: " .. tostring(grantedTrait));
+                end
+            end
+        end
+    end
+    
     for i = 0, size - 1 do
         local trait = traitsList:get(i);
         print("[Respawn] Trait #" .. i .. ": " .. tostring(trait));
         if trait then
             local traitStr = trait:toString();
             print("[Respawn] Trait toString: " .. tostring(traitStr));
-            if traitStr then
+            
+            -- Skip profession-granted traits
+            local isProfTrait = grantedTraits[traitStr] == true;
+            print("[Respawn] Is profession-granted trait: " .. tostring(isProfTrait));
+            
+            if not isProfTrait and traitStr then
                 table.insert(Respawn.Data.Stats.Traits, traitStr);
+                print("[Respawn] Added to save list: " .. traitStr);
+            else
+                print("[Respawn] Skipping profession-granted trait: " .. tostring(trait));
             end
         end
     end

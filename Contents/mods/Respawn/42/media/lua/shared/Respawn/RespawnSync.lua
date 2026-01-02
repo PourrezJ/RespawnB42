@@ -49,6 +49,10 @@ local function OnClientReceiveOptionsModData(key, modData)
         return;
     end
 
+    print("[Respawn] Received options from server:");
+    print("  XPRestored: " .. tostring(modData.XPRestored));
+    print("  ExcludeFitness: " .. tostring(modData.ExcludeFitness));
+    print("  ExcludeStrength: " .. tostring(modData.ExcludeStrength));
     writeLog(Respawn.GetLogName(), "saving options");
     Respawn.Data.Options = modData;
 end

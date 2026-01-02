@@ -10,7 +10,7 @@ Respawn.AvailablePath = "respawn-available.json";
 
 Respawn.Data = {};
 Respawn.Data.Stats = {};
-Respawn.Data.Options = {};
+-- Respawn.Data.Options is initialized in RespawnOptions.lua
 
 function Respawn.GetModDataStatsKey()
     return Respawn.Id..'-'..Respawn.GetUserID();

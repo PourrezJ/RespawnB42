@@ -15,18 +15,30 @@ end
 
 function RecoverableExperience:SavePerkXP(player, perk)
     local xp = player:getXp();
-
-    if Respawn.Data.Options.ExcludeStrength and perk:getName() == "Strength" or Respawn.Data.Options.ExcludeFitness and perk:getName() == "Fitness" then
-        Respawn.Data.Stats.Experience[perk:getName()] = xp:getXP(perk);
+    local perkName = perk:getName();
+    local options = Respawn.Data.Options or {};
+    
+    -- Check if this perk should be excluded (100% XP restore)
+    local isExcluded = (options.ExcludeStrength and perkName == "Strength") or 
+                       (options.ExcludeFitness and perkName == "Fitness");
+    
+    if isExcluded then
+        Respawn.Data.Stats.Experience[perkName] = xp:getXP(perk);
         return;
     end
+    
+    -- Get the XPRestored option (1-21, where 21 = "Last Level")
+    local xpRestoredOption = options.XPRestored or 21;
         
-    if Respawn.Data.Options.XPRestored == 21 then --Option 21 is "Last Level"
+    if xpRestoredOption == 21 then
+        -- Option 21 is "Last Level" - save XP needed to reach current level
         xp:setXPToLevel(perk, player:getPerkLevel(perk));
-        
-        Respawn.Data.Stats.Experience[perk:getName()] = xp:getXP(perk);
+        Respawn.Data.Stats.Experience[perkName] = xp:getXP(perk);
     else
-        Respawn.Data.Stats.Experience[perk:getName()] = xp:getXP(perk) * Respawn.Data.Options.XPRestored / 20;
+        -- Options 1-20 correspond to 5%-100% (option 1 = 5%, option 20 = 100%)
+        -- Formula: (option * 5) / 100 = option / 20
+        local percentage = xpRestoredOption / 20;
+        Respawn.Data.Stats.Experience[perkName] = xp:getXP(perk) * percentage;
     end
 end
 

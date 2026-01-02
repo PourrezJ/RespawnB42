@@ -46,12 +46,28 @@ Events.OnGameBoot.Add(InitRespawnProfessionOnServer);
 --]]
 
 local function LoadOptions()
+    -- Try to load from file first
     local options = Respawn.File.Load(Respawn.OptionsPath);
-
+    
     if not options then
-        options = Respawn.DefaultOptions;
+        -- Create default options if file doesn't exist
+        options = {
+            XPRestored = 21, -- Default: "Last Level"
+            ExcludeFitness = true,
+            ExcludeStrength = true,
+        };
+        
+        -- Save default options to file for future editing
         Respawn.File.Save(Respawn.OptionsPath, options);
+        print("[Respawn Server] Created default options file: " .. Respawn.OptionsPath);
+    else
+        print("[Respawn Server] Loaded options from file: " .. Respawn.OptionsPath);
     end
+    
+    print("[Respawn Server] Server options:");
+    print("  XPRestored: " .. tostring(options.XPRestored));
+    print("  ExcludeFitness: " .. tostring(options.ExcludeFitness));
+    print("  ExcludeStrength: " .. tostring(options.ExcludeStrength));
 
     return options;
 end
@@ -61,8 +77,9 @@ local function AddOptionsToModData()
 
     local options = LoadOptions();
 
+    -- Store in ModData so clients can receive them
     ModData.add(Respawn.GetModDataOptionsKey(), options);
-    writeLog(Respawn.GetLogName(), "tables: "..tostring(ModData.getTableNames()));
+    writeLog(Respawn.GetLogName(), "options added to ModData");
 end
 
 Events.OnInitGlobalModData.Add(AddOptionsToModData);

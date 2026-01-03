@@ -39,20 +39,20 @@ end
 
 modOptions:addSeparator()
 
--- Exclude Fitness tickbox
+-- Always restore Fitness at 100%
 modOptions:addTickBox(
     "ExcludeFitness",
-    "Exclude Fitness",
+    "Always Restore Fitness at 100%",
     true,
-    "If enabled, Fitness XP will be restored at 100% regardless of the XP Restored setting."
+    "When enabled, Fitness XP is always fully restored (100%) regardless of the XP Restored percentage."
 )
 
--- Exclude Strength tickbox
+-- Always restore Strength at 100%
 modOptions:addTickBox(
     "ExcludeStrength",
-    "Exclude Strength",
+    "Always Restore Strength at 100%",
     true,
-    "If enabled, Strength XP will be restored at 100% regardless of the XP Restored setting."
+    "When enabled, Strength XP is always fully restored (100%) regardless of the XP Restored percentage."
 )
 
 modOptions:addSeparator()
@@ -92,4 +92,11 @@ modOptions:apply()
 -- Re-apply on main menu enter
 Events.OnMainMenuEnter.Add(function()
     modOptions:apply()
+end)
+
+-- Apply options immediately when changed
+Events.OnGameOptionsApplied.Add(function()
+    if not isClient() then
+        modOptions:apply()
+    end
 end)

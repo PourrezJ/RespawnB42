@@ -17,6 +17,14 @@ function RecoverableExperience:SavePerkXP(player, perk)
     local perkName = perk:getName();
     local options = Respawn.Data.Options or {};
     
+    -- Get the XPRestored option (1-21, where 21 = "Last Level")
+    local xpRestoredOption = options.XPRestored or 21;
+    
+    -- Debug: Log the active option on first call
+    if perkName == "Strength" then
+        Respawn.Log("SavePerkXP - Active XPRestored option: " .. tostring(xpRestoredOption));
+    end
+    
     -- Check if this perk should be excluded (100% XP restore)
     local isExcluded = (options.ExcludeStrength and perkName == "Strength") or 
                        (options.ExcludeFitness and perkName == "Fitness");
@@ -25,9 +33,6 @@ function RecoverableExperience:SavePerkXP(player, perk)
         Respawn.Data.Stats.Experience[perkName] = xp:getXP(perk);
         return;
     end
-    
-    -- Get the XPRestored option (1-21, where 21 = "Last Level")
-    local xpRestoredOption = options.XPRestored or 21;
         
     if xpRestoredOption == 21 then
         -- Option 21 is "Last Level" - save XP needed to reach current level

@@ -138,14 +138,6 @@ ApplyTraitsAndProfession = function(player)
         end
     end
 end
-            end
-        end
-    else
-        print("[Respawn] No traits to restore");
-    end
-    
-    print("[Respawn] Traits and profession restoration complete");
-end
 
 local function OnCreatePlayer(id, player)
     -- Get the trait from the registered profession

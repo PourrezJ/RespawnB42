@@ -40,8 +40,19 @@ local function OnClientCommand(module, command, player, args)
         end
         
         local xp = player:getXp();
-        local count = 0;
+        local perks = PerkFactory.PerkList;
         
+        -- Reset all XP to 0 first
+        for i = 0, perks:size() - 1 do
+            local perk = perks:get(i);
+            xp:setXPToLevel(perk, 0);
+            while player:getPerkLevel(perk) > 0 do
+                player:LoseLevel(perk);
+            end
+        end
+        
+        -- Now apply saved XP
+        local count = 0;
         for perkName, experience in pairs(args.experience) do
             local success, err = pcall(function()
                 local perk = PerkFactory.getPerkFromName(perkName);

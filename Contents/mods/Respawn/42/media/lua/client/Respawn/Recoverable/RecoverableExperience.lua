@@ -47,9 +47,7 @@ function RecoverableExperience:SavePerkXP(player, perk)
 end
 
 function RecoverableExperience:Load(player)
-    Respawn.DebugLog("RecoverableExperience:Load called");
     if not Respawn.Data.Stats.Experience then
-        Respawn.DebugLog("No experience data to restore");
         return;
     end
     

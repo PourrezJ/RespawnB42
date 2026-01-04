@@ -1,4 +1,0 @@
-// This file is intentionally empty.
-// The Respawn mod creates traits dynamically in Lua code (RespawnLoad.lua)
-// to prevent them from being visible in character creation unless the player is dead.
-// See RespawnProfession.lua - CreateRespawnProfession() for the dynamic creation logic.

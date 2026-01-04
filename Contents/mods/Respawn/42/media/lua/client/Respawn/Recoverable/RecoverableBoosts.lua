@@ -1,7 +1,6 @@
 RecoverableBoosts = {};
 
 function RecoverableBoosts:Save(player)
-    Respawn.DebugLog("RecoverableBoosts:Save called");
     Respawn.Data.Stats.Boosts = {};
 
     local perks = PerkFactory.PerkList;
@@ -15,17 +14,12 @@ function RecoverableBoosts:Save(player)
             Respawn.Data.Stats.Boosts[perk:getName()] = boost;
         end
     end
-    
-    Respawn.DebugLog("Boosts saved");
 end
 
 function RecoverableBoosts:Load(player)
     if not Respawn.Data.Stats.Boosts then
-        Respawn.DebugLog("No boosts data to restore");
         return;
     end
-    
-    Respawn.DebugLog("RecoverableBoosts:Load - Restoring XP boosts");
     
     if isClient() then
         -- Multiplayer: server applies boosts

@@ -8,14 +8,10 @@ function RecoverableRecipes:Save(player)
     for i = 0, recipes:size() - 1 do
         table.insert(Respawn.Data.Stats.Recipes, recipes:get(i));
     end
-    
-    Respawn.DebugLog("Saved " .. #Respawn.Data.Stats.Recipes .. " recipes");
 end
 
 function RecoverableRecipes:Load(player)
-    Respawn.DebugLog("RecoverableRecipes:Load called");
     if not Respawn.Data.Stats.Recipes then
-        Respawn.DebugLog("No recipes data to restore");
         return;
     end
     

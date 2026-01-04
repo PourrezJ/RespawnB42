@@ -6,8 +6,6 @@ if not PZAPI or not PZAPI.ModOptions then
     return
 end
 
-Respawn.DebugLog("Creating ModOptions UI...")
-
 local modOptions = PZAPI.ModOptions:create("respawn_options", "Respawn Mod")
 
 -- In multiplayer, only show a message explaining that server controls options

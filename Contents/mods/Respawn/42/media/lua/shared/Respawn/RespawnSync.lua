@@ -26,11 +26,10 @@ local function OnClientInitGlobalModData()
 end
 
 local function OnServerReceiveModData(key, modData)
-    if isClient() or not String:StartsWith(key, Respawn.Id) or key == Respawn.GetModDataOptionsKey() or not modData then
+    if isClient() or not key:find(Respawn.Id) or key == Respawn.GetModDataOptionsKey() or not modData then
         return;
     end
 
-    writeLog(Respawn.GetLogName(), "saving mod data.");
     ModData.add(key, modData);
 end
 
@@ -39,7 +38,6 @@ local function OnClientReceiveStatsModData(key, modData)
         return;
     end
 
-    writeLog(Respawn.GetLogName(), "saving player stats");
     Respawn.Data.Stats = modData;
     ModData.add(key, Respawn.Data.Stats);
 end
@@ -49,7 +47,6 @@ local function OnClientReceiveOptionsModData(key, modData)
         return;
     end
 
-    Respawn.Log("Received options from server (XP: " .. tostring(modData.XPRestored) .. ")");
     Respawn.Data.Options = modData;
 end
 

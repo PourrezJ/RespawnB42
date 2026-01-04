@@ -6,23 +6,18 @@ local function SetRespawnAvailable()
 end
 
 local function SavePlayer(player)
-    Respawn.Log("Saving character stats (OnPlayerDeath)");
-    
     Respawn.Data.Stats = {};
     ModData.add(Respawn.GetModDataStatsKey(), Respawn.Data.Stats);
     
-    -- Save visual appearance and name
+    -- Save character name and visual appearance
     local descriptor = player:getDescriptor()
     if descriptor then
-        -- Save character name
         Respawn.Data.Stats.CharacterName = {
             forename = descriptor:getForename(),
             surname = descriptor:getSurname()
         }
-        Respawn.Log("Saved character name: " .. tostring(descriptor:getForename()) .. " " .. tostring(descriptor:getSurname()))
     end
     
-    -- Save visual appearance directly from player
     local visual = player:getHumanVisual()
     if visual then
         Respawn.Data.Stats.Visual = {
@@ -33,12 +28,6 @@ local function SavePlayer(player)
             isFemale = player:isFemale()
         }
         
-        Respawn.Log("Saved visual data - Hair: " .. tostring(Respawn.Data.Stats.Visual.hairModel) .. 
-                    ", Beard: " .. tostring(Respawn.Data.Stats.Visual.beardModel) ..
-                    ", BodyHair: " .. tostring(Respawn.Data.Stats.Visual.bodyHairIndex) ..
-                    ", SkinTexture: " .. tostring(Respawn.Data.Stats.Visual.skinTextureIndex))
-        
-        -- Save hair color if exists
         local hairColor = visual:getNaturalHairColor()
         if hairColor then
             Respawn.Data.Stats.Visual.hairColor = {
@@ -48,7 +37,6 @@ local function SavePlayer(player)
             }
         end
         
-        -- Save beard color if exists
         local beardColor = visual:getNaturalBeardColor()
         if beardColor then
             Respawn.Data.Stats.Visual.beardColor = {
@@ -57,25 +45,18 @@ local function SavePlayer(player)
                 b = beardColor:getBlueFloat()
             }
         end
-        
-        Respawn.Log("Saved visual appearance")
-    else
-        Respawn.Log("ERROR: Could not get player HumanVisual")
     end
     
+    -- Save stats via recoverable modules
     for i, recoverable in ipairs(Respawn.Recoverables) do
-        Respawn.DebugLog("Saving recoverable: " .. tostring(recoverable));
         recoverable:Save(player);
     end
 
-    Respawn.DebugLog("Save complete");
-    
     if isClient() then
         Respawn.Sync.SaveRemote();
     end
 
     SetRespawnAvailable();
-    Respawn.Log("Character stats saved successfully");
 end
 
 Events.OnPlayerDeath.Add(SavePlayer);

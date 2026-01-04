@@ -1,9 +1,11 @@
 Respawn = {};
 
 Respawn.Id = "respawn"; -- Short ID for ModData keys and internal use
-Respawn.FullId = "respawn:respawn"; -- Full ID with namespace for Build 42 traits/professions (format: namespace:id)
-Respawn.Trait = nil; -- CharacterTrait object, initialized later
+Respawn.FullId = "respawn:respawn"; -- Full ID with namespace (kept for compatibility)
 Respawn.Name = "Respawn";
+Respawn.PendingRestore = false; -- Flag to indicate restoration should happen after respawn
+
+-- Note: Profession/trait system removed in favor of hooking ISPostDeathUI:onRespawn
 
 Respawn.OptionsPath = "respawn-options.json";
 Respawn.AvailablePath = "respawn-available.json";

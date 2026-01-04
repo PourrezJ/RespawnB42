@@ -66,7 +66,7 @@ modOptions:addTickBox(
     "Show detailed debug messages in console.txt for troubleshooting."
 )
 
--- Apply function - only updates in solo mode
+-- Apply function - called by PZAPI when options change
 modOptions.apply = function(self)
     -- In multiplayer, options come from server, don't override
     if isClient() then
@@ -86,17 +86,6 @@ modOptions.apply = function(self)
     Respawn.Log("  EnableDebug: " .. tostring(Respawn.Data.Options.EnableDebug))
 end
 
--- Initialize options immediately
+-- PZAPI automatically calls apply() when options change and when the mod options screen is opened
+-- We just need to call it once at startup to load saved options
 modOptions:apply()
-
--- Re-apply on main menu enter
-Events.OnMainMenuEnter.Add(function()
-    modOptions:apply()
-end)
-
--- Apply options immediately when changed
-Events.OnGameOptionsApplied.Add(function()
-    if not isClient() then
-        modOptions:apply()
-    end
-end)

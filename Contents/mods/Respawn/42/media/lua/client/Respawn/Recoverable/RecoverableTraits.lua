@@ -39,21 +39,44 @@ function RecoverableTraits:Save(player)
         end
     end
     
+    local size = traitsList:size();
     for i = 0, size - 1 do
         local trait = traitsList:get(i);
-        print("[Respawn] Trait #" .. i .. ": " .. tostring(trait));
-        if trait then
-            local traitStr = trait:toString();
-            print("[Respawn] Trait toString: " .. tostring(traitStr));
-            
-            -- Skip profession-granted traits
+        local traitStr = tostring(trait);
+        
+        -- Skip profession-granted traits
+        if not grantedTraits[traitStr] then
+            table.insert(Respawn.Data.Stats.Traits, traitStr);
+        end
+    end
     
     Respawn.DebugLog("Saved " .. #Respawn.Data.Stats.Traits .. " traits (excluding profession traits)");
 end
 
--- Note: Traits are applied directly in RespawnLoad.lua via ApplyTraitsAndProfession()
--- This Load method is not used but kept for compatibility with the Recoverables structure
+-- Note: Traits are applied in solo mode via this Load method
+-- In multiplayer, traits are applied via server commands
 function RecoverableTraits:Load(player)
-    -- Traits are applied via server commands in multiplayer or directly in ApplyTraitsAndProfession() in solo
-    -- This method is intentionally left empty
+    if not Respawn.Data.Stats.Traits or #Respawn.Data.Stats.Traits == 0 then
+        Respawn.DebugLog("RecoverableTraits:Load - No traits to restore")
+        return
+    end
+    
+    Respawn.DebugLog("RecoverableTraits:Load - Restoring " .. #Respawn.Data.Stats.Traits .. " traits")
+    
+    local playerTraits = player:getCharacterTraits()
+    
+    for _, traitId in ipairs(Respawn.Data.Stats.Traits) do
+        local success, err = pcall(function()
+            local trait = CharacterTrait.get(ResourceLocation.of(traitId))
+            if trait then
+                playerTraits:add(trait)
+                Respawn.DebugLog("Added trait: " .. traitId)
+            end
+        end)
+        if not success then
+            Respawn.Log("ERROR adding trait " .. traitId .. ": " .. tostring(err))
+        end
+    end
+    
+    Respawn.Log("Restored " .. #Respawn.Data.Stats.Traits .. " traits")
 end
